@@ -90,6 +90,20 @@ This repository supports:
 
 For licensing, services, or audits, refer to Hollow House Institute official channels.
 
+## Licensing & Access
+
+This repository provides reference standards only.
+
+Applied use of Vector Mapping Systems — including audits, services, dataset interpretation, internal deployment, or commercial integration — requires licensing through the Hollow House Institute Licensing Portal.
+
+Repository access does not grant:
+- applied analytical rights
+- commercial permissions
+- service deliverables
+- audit authority
+
+Licensing tiers, subscriptions, and service requests are managed separately under governed access.
+
 ---
 
 Hollow House Institute  
