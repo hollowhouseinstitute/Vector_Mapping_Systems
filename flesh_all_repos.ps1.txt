@@ -1,0 +1,110 @@
+# =====================================================
+# Hollow House – Global Repo Flesher (A + B + C)
+# =====================================================
+
+$Root = "$HOME\Documents\Hollow_House"
+
+$InstituteURL = "https://github.com/hollowhouseinstitute/Hollow_House_Institute"
+$StandardsURL = "https://github.com/hollowhouseinstitute/Hollow_House_Standards_Library"
+
+$GovernanceBadge = "[![Governance](https://img.shields.io/badge/Governed%20By-Hollow%20House%20Institute-black)]($InstituteURL)"
+$CanonicalBadge  = "![Canonical](https://img.shields.io/badge/Status-Canonical-gold)"
+$DiagramBadge    = "![Diagram](https://img.shields.io/badge/Diagram-Coming%20Soon-lightgrey)"
+
+$Repos = Get-ChildItem $Root -Directory | Where-Object {
+    Test-Path "$($_.FullName)\.git"
+}
+
+$Report = @()
+
+foreach ($Repo in $Repos) {
+
+    Write-Host "`nProcessing $($Repo.Name)" -ForegroundColor Cyan
+    Set-Location $Repo.FullName
+
+    # ---------- README ----------
+    $ReadmePath = "README.md"
+    if (!(Test-Path $ReadmePath)) {
+        "# $($Repo.Name)`n" | Set-Content $ReadmePath
+    }
+
+    $Readme = Get-Content $ReadmePath -Raw
+
+    if ($Readme -notmatch "Governed By") {
+        $Header = @"
+$GovernanceBadge
+$CanonicalBadge
+$DiagramBadge
+
+---
+"@
+        $Readme = $Header + $Readme
+    }
+
+    if ($Readme -notmatch "Governance") {
+        $Readme += @"
+
+---
+## Governance
+
+**Governed by:** Hollow House Institute  
+**Canonical Authority:** [$InstituteURL]($InstituteURL)
+
+This repository operates under Institute-wide standards and policies.
+"@
+    }
+
+    if ($Readme -notmatch "Standards Library") {
+        $Readme += @"
+
+## Standards Alignment
+This repository aligns with:
+- [Hollow House Standards Library]($StandardsURL)
+"@
+    }
+
+    Set-Content $ReadmePath $Readme -Encoding UTF8
+
+    # ---------- STATUS ----------
+    if (!(Test-Path "STATUS.md")) {
+@"
+# Repository Status
+
+**Status:** ACTIVE  
+**Canonical:** YES  
+**Governance:** Hollow House Institute
+
+All changes are subject to Institute review.
+"@ | Set-Content STATUS.md
+    }
+
+    # ---------- CONTRIBUTING ----------
+    if (!(Test-Path "CONTRIBUTING.md")) {
+@"
+# Contributing
+
+All contributions must:
+- Align with Hollow House standards
+- Respect governance constraints
+- Be reviewable and auditable
+
+Institute approval required for merges.
+"@ | Set-Content CONTRIBUTING.md
+    }
+
+    # ---------- Git ----------
+    if (Test-Path ".git") {
+        git add README.md STATUS.md CONTRIBUTING.md | Out-Null
+        git commit -m "Add governance, badges, and canonical links" 2>$null
+    }
+
+    $Report += [PSCustomObject]@{
+        Repository = $Repo.Name
+        README     = Test-Path README.md
+        STATUS     = Test-Path STATUS.md
+        CONTRIBUTING = Test-Path CONTRIBUTING.md
+    }
+}
+
+Set-Location $Root
+$Report | Format-Table -AutoSize
